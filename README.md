@@ -3,6 +3,11 @@
 Working towards building an Elm geolocation project that works with the Google
 Maps API.
 
+For the original files we created, see the following:
+
+- `src/Main.elm`
+- `public/index-original.html`
+
 # Setup
 
 - `npm install --global elm create-elm-app`
