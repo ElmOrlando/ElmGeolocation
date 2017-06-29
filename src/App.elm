@@ -2,8 +2,8 @@ module App exposing (..)
 
 import Geolocation exposing (Location)
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Task
 
 
 ---- MODEL ----
@@ -34,6 +34,7 @@ type Msg
     = NoOp
     | ToggleLocationDisplay
     | FetchLocation
+    | UpdateLocation (Result Geolocation.Error Location)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -46,7 +47,21 @@ update msg model =
             ( { model | displayLocation = not model.displayLocation }, Cmd.none )
 
         FetchLocation ->
-            ( model, Cmd.none )
+            let
+                cmd =
+                    Geolocation.now |> Task.attempt UpdateLocation
+            in
+                ( model, cmd )
+
+        UpdateLocation (Ok location) ->
+            ( { model | location = Just location }, Cmd.none )
+
+        UpdateLocation (Err error) ->
+            let
+                _ =
+                    Debug.log "LocationUpdated" error
+            in
+                ( model, Cmd.none )
 
 
 
@@ -58,6 +73,11 @@ view model =
     div []
         [ viewMessage model
         , viewLocationToggleButton
+        , viewFetchLocationButton
+        , if model.displayLocation then
+            viewLocationData model
+          else
+            div [] []
         ]
 
 
@@ -69,6 +89,20 @@ viewMessage { message } =
 viewLocationToggleButton : Html Msg
 viewLocationToggleButton =
     button [ onClick ToggleLocationDisplay ] [ text "Toggle Location Display" ]
+
+
+viewFetchLocationButton : Html Msg
+viewFetchLocationButton =
+    button [ onClick FetchLocation ] [ text "Fetch Location" ]
+
+
+viewLocationData : Model -> Html Msg
+viewLocationData { location } =
+    p []
+        [ location
+            |> toString
+            |> text
+        ]
 
 
 
