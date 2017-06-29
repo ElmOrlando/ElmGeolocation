@@ -1,6 +1,6 @@
 module App exposing (..)
 
-import Geolocation
+import Geolocation exposing (Location)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -11,12 +11,19 @@ import Html.Events exposing (onClick)
 
 type alias Model =
     { message : String
+    , displayLocation : Bool
+    , location : Maybe Location
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init path =
-    ( { message = "Elm Geolocation!" }, Cmd.none )
+    ( { message = "Elm Geolocation!"
+      , displayLocation = False
+      , location = Nothing
+      }
+    , Cmd.none
+    )
 
 
 
@@ -25,7 +32,7 @@ init path =
 
 type Msg
     = NoOp
-    | DisplayLocation
+    | ToggleLocationDisplay
     | FetchLocation
 
 
@@ -35,8 +42,8 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        DisplayLocation ->
-            ( model, Cmd.none )
+        ToggleLocationDisplay ->
+            ( { model | displayLocation = not model.displayLocation }, Cmd.none )
 
         FetchLocation ->
             ( model, Cmd.none )
@@ -50,12 +57,18 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewMessage model
+        , viewLocationToggleButton
         ]
 
 
 viewMessage : Model -> Html Msg
 viewMessage { message } =
     h1 [] [ text message ]
+
+
+viewLocationToggleButton : Html Msg
+viewLocationToggleButton =
+    button [ onClick ToggleLocationDisplay ] [ text "Toggle Location Display" ]
 
 
 
