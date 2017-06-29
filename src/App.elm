@@ -1,7 +1,9 @@
 module App exposing (..)
 
-import Html exposing (Html, text, div, img)
-import Html.Attributes exposing (src)
+import Geolocation
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 
 
 ---- MODEL ----
@@ -9,13 +11,12 @@ import Html.Attributes exposing (src)
 
 type alias Model =
     { message : String
-    , logo : String
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init path =
-    ( { message = "Your Elm App is working!", logo = path }, Cmd.none )
+    ( { message = "Elm Geolocation!" }, Cmd.none )
 
 
 
@@ -24,11 +25,21 @@ init path =
 
 type Msg
     = NoOp
+    | DisplayLocation
+    | FetchLocation
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
+        DisplayLocation ->
+            ( model, Cmd.none )
+
+        FetchLocation ->
+            ( model, Cmd.none )
 
 
 
@@ -38,9 +49,13 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src model.logo ] []
-        , div [] [ text model.message ]
+        [ viewMessage model
         ]
+
+
+viewMessage : Model -> Html Msg
+viewMessage { message } =
+    h1 [] [ text message ]
 
 
 
