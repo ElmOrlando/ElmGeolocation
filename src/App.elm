@@ -75,7 +75,11 @@ view model =
         , viewLocationToggleButton
         , viewFetchLocationButton
         , if model.displayLocation then
-            viewLocationData model
+            div []
+                [ viewLocationData model
+                , viewLocation
+                    model
+                ]
           else
             div [] []
         ]
@@ -103,6 +107,28 @@ viewLocationData { location } =
             |> toString
             |> text
         ]
+
+
+viewLocation : Model -> Html Msg
+viewLocation { location } =
+    let
+        latitude =
+            case location of
+                Just loc ->
+                    p [] [ label [] [ text "Latitude: " ], loc.latitude |> toString |> text ]
+
+                Nothing ->
+                    p [] []
+
+        longitude =
+            case location of
+                Just loc ->
+                    p [] [ label [] [ text "Longitude: " ], loc.longitude |> toString |> text ]
+
+                Nothing ->
+                    p [] []
+    in
+        div [] [ latitude, longitude ]
 
 
 
