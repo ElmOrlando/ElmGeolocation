@@ -11,8 +11,8 @@ For the original files we created, see the following:
 # Setup
 
 - `npm install --global elm create-elm-app`
-- `git clone https://github.com/ElmOrlando/MapBlaster.git`
-- `cd MapBlaster`
+- `git clone https://github.com/ElmOrlando/ElmGeolocation.git`
+- `cd ElmGeolocation`
 - `elm-package install`
 - `npm start`
 
