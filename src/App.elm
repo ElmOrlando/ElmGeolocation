@@ -74,35 +74,38 @@ update msg model =
             in
             ( model, Cmd.none )
 
-        UpdateMovement code ->
+        UpdateMovement keyCode ->
             case List.head model.locations of
-                Just { lat, lng } ->
-                    case code of
-                        "KeyW" ->
-                            ( { model | locations = Loc (lat + 0.01) lng :: model.locations }
-                            , whereami (Loc (lat + 0.01) lng :: model.locations)
-                            )
-
-                        "KeyS" ->
-                            ( { model | locations = Loc (lat - 0.01) lng :: model.locations }
-                            , whereami (Loc (lat - 0.01) lng :: model.locations)
-                            )
-
-                        "KeyA" ->
-                            ( { model | locations = Loc lat (lng - 0.01) :: model.locations }
-                            , whereami (Loc lat (lng - 0.01) :: model.locations)
-                            )
-
-                        "KeyD" ->
-                            ( { model | locations = Loc lat (lng + 0.01) :: model.locations }
-                            , whereami (Loc lat (lng + 0.01) :: model.locations)
-                            )
-
-                        other ->
-                            ( model, Cmd.none )
+                Just location ->
+                    let
+                        updatedLocations =
+                            applyMovement keyCode location :: model.locations
+                    in
+                    ( { model | locations = updatedLocations }
+                    , whereami updatedLocations
+                    )
 
                 other ->
                     ( model, Cmd.none )
+
+
+applyMovement : String -> Loc -> Loc
+applyMovement keyCode { lat, lng } =
+    case keyCode of
+        "KeyW" ->
+            Loc (lat + 0.01) lng
+
+        "KeyS" ->
+            Loc (lat - 0.01) lng
+
+        "KeyA" ->
+            Loc lat (lng - 0.01)
+
+        "KeyD" ->
+            Loc lat (lng + 0.01)
+
+        other ->
+            Loc lat lng
 
 
 
