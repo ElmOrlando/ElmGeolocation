@@ -9,10 +9,14 @@ import Task
 ---- MODEL ----
 
 
+type alias Loc =
+    { lat : Float, lng : Float }
+
+
 type alias Model =
     { message : String
     , displayLocation : Bool
-    , location : Maybe Location
+    , locations : List Loc
     }
 
 
@@ -20,7 +24,7 @@ init : String -> ( Model, Cmd Msg )
 init path =
     ( { message = "Elm Geolocation!"
       , displayLocation = False
-      , location = Nothing
+      , locations = []
       }
     , Cmd.none
     )
@@ -54,9 +58,13 @@ update msg model =
                 ( model, cmd )
 
         UpdateLocation (Ok location) ->
-            ( { model | location = Just location }
-            , whereami ( location.longitude, location.latitude )
-            )
+            let
+                newLocations =
+                    Loc location.latitude location.longitude :: model.locations
+            in
+                ( { model | locations = newLocations }
+                , whereami newLocations
+                )
 
         UpdateLocation (Err error) ->
             let
@@ -79,8 +87,6 @@ view model =
         , if model.displayLocation then
             div []
                 [ viewLocationData model
-                , viewLocation
-                    model
                 ]
           else
             div [] []
@@ -89,7 +95,7 @@ view model =
 
 viewMessage : Model -> Html Msg
 viewMessage { message } =
-    h1 [] [ text message ]
+    h3 [] [ text message ]
 
 
 viewLocationToggleButton : Html Msg
@@ -103,37 +109,33 @@ viewFetchLocationButton =
 
 
 viewLocationData : Model -> Html Msg
-viewLocationData { location } =
+viewLocationData { locations } =
     p []
-        [ location
+        [ locations
+            |> List.head
             |> toString
             |> text
         ]
 
 
-viewLocation : Model -> Html Msg
-viewLocation { location } =
-    let
-        latitude =
-            case location of
-                Just loc ->
-                    p [] [ label [] [ text "Latitude: " ], loc.latitude |> toString |> text ]
 
-                Nothing ->
-                    p [] []
-
-        longitude =
-            case location of
-                Just loc ->
-                    p [] [ label [] [ text "Longitude: " ], loc.longitude |> toString |> text ]
-
-                Nothing ->
-                    p [] []
-    in
-        div [] [ latitude, longitude ]
-
-
-
+-- viewLocation : Model -> Html Msg
+-- viewLocation { locations } =
+--     let
+--         latitude =
+--             case location of
+--                 Just loc ->
+--                     p [] [ label [] [ text "Latitude: " ], loc.latitude |> toString |> text ]
+--                 Nothing ->
+--                     p [] []
+--         longitude =
+--             case location of
+--                 Just loc ->
+--                     p [] [ label [] [ text "Longitude: " ], loc.longitude |> toString |> text ]
+--                 Nothing ->
+--                     p [] []
+--     in
+--         div [] [ latitude, longitude ]
 ---- SUBSCRIPTIONS ----
 
 
@@ -142,7 +144,7 @@ subscriptions model =
     Geolocation.changes (UpdateLocation << Ok)
 
 
-port whereami : ( Float, Float ) -> Cmd msg
+port whereami : List Loc -> Cmd msg
 
 
 
