@@ -12,5 +12,29 @@
         You need to enable JavaScript to run this app.
     </noscript>
     <div id="root"></div>
+    <div id="map"></div>
+    <style>
+        #map {
+            height: 800px;
+        }
+    </style>
+    <script>
+        var map;
+        var marker;
+        function initMap() {
+            myLatLng = { lat: 28.5383, lng: -81.3792 };
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: myLatLng,
+                zoom: 14
+            });
+            marker = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+                title: 'Elm Orlando!'
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv4hj-9q4mOEFWcp50aoHYlkUmtWuVSyQ&callback=initMap" async
+        defer></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-module App exposing (..)
+port module App exposing (..)
 
 import Geolocation exposing (Location)
 import Html exposing (..)
@@ -54,7 +54,9 @@ update msg model =
                 ( model, cmd )
 
         UpdateLocation (Ok location) ->
-            ( { model | location = Just location }, Cmd.none )
+            ( { model | location = Just location }
+            , whereami ( location.longitude, location.latitude )
+            )
 
         UpdateLocation (Err error) ->
             let
@@ -132,6 +134,18 @@ viewLocation { location } =
 
 
 
+---- SUBSCRIPTIONS ----
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Geolocation.changes (UpdateLocation << Ok)
+
+
+port whereami : ( Float, Float ) -> Cmd msg
+
+
+
 ---- PROGRAM ----
 
 
@@ -141,5 +155,5 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
