@@ -8,7 +8,7 @@ Building an Elm geolocation project that works with the Google Maps API.
 - `git clone https://github.com/ElmOrlando/ElmGeolocation.git`
 - `cd ElmGeolocation`
 - `elm-package install`
-- `npm start`
+- `elm-app start`
 
 # Create Elm App Info
 
