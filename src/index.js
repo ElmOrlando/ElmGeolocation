@@ -5,9 +5,9 @@ import { App }  from './App.elm';
 var app = App.embed(document.getElementById('root'), logoPath);
 
 window.addEventListener('keydown', ({ code, preventDefault }) => {
-  const { newMovement } = app.ports
-  newMovement.send(code)
-})
+  const { newMovement } = app.ports;
+  newMovement.send(code);
+});
 
 app.ports.whereami.subscribe(function(lox){
     if (lox.length > 0) {
