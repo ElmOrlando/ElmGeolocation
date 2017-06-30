@@ -1,8 +1,13 @@
 import './main.css';
 import logoPath from './logo.svg';
-const { App } = require('./App.elm');
+import { App }  from './App.elm';
 
 var app = App.embed(document.getElementById('root'), logoPath);
+
+window.addEventListener('keydown', ({ code, preventDefault }) => {
+  const { newMovement } = app.ports
+  newMovement.send(code)
+})
 
 app.ports.whereami.subscribe(function(lox){
     if (lox.length > 0) {
