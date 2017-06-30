@@ -119,23 +119,6 @@ viewLocationData { locations } =
 
 
 
--- viewLocation : Model -> Html Msg
--- viewLocation { locations } =
---     let
---         latitude =
---             case location of
---                 Just loc ->
---                     p [] [ label [] [ text "Latitude: " ], loc.latitude |> toString |> text ]
---                 Nothing ->
---                     p [] []
---         longitude =
---             case location of
---                 Just loc ->
---                     p [] [ label [] [ text "Longitude: " ], loc.longitude |> toString |> text ]
---                 Nothing ->
---                     p [] []
---     in
---         div [] [ latitude, longitude ]
 ---- SUBSCRIPTIONS ----
 
 
