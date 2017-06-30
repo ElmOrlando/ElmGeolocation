@@ -1,12 +1,6 @@
 # Elm Orlando Hack Project
 
-Working towards building an Elm geolocation project that works with the Google
-Maps API.
-
-For the original files we created, see the following:
-
-- `src/Main.elm`
-- `public/index-original.html`
+Building an Elm geolocation project that works with the Google Maps API.
 
 # Setup
 
