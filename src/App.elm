@@ -39,6 +39,7 @@ type Msg
     | ToggleLocationDisplay
     | FetchLocation
     | UpdateLocation (Result Geolocation.Error Location)
+    | UpdateMovement String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -55,23 +56,56 @@ update msg model =
                 cmd =
                     Geolocation.now |> Task.attempt UpdateLocation
             in
-                ( model, cmd )
+            ( model, cmd )
 
         UpdateLocation (Ok location) ->
             let
                 newLocations =
                     Loc location.latitude location.longitude :: model.locations
             in
-                ( { model | locations = newLocations }
-                , whereami newLocations
-                )
+            ( { model | locations = newLocations }
+            , whereami newLocations
+            )
 
         UpdateLocation (Err error) ->
             let
                 _ =
                     Debug.log "LocationUpdated" error
             in
-                ( model, Cmd.none )
+            ( model, Cmd.none )
+
+        UpdateMovement keyCode ->
+            case List.head model.locations of
+                Just location ->
+                    let
+                        updatedLocations =
+                            applyMovement keyCode location :: model.locations
+                    in
+                    ( { model | locations = updatedLocations }
+                    , whereami updatedLocations
+                    )
+
+                other ->
+                    ( model, Cmd.none )
+
+
+applyMovement : String -> Loc -> Loc
+applyMovement keyCode { lat, lng } =
+    case keyCode of
+        "KeyW" ->
+            Loc (lat + 0.01) lng
+
+        "KeyS" ->
+            Loc (lat - 0.01) lng
+
+        "KeyA" ->
+            Loc lat (lng - 0.01)
+
+        "KeyD" ->
+            Loc lat (lng + 0.01)
+
+        other ->
+            Loc lat lng
 
 
 
@@ -124,10 +158,16 @@ viewLocationData { locations } =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Geolocation.changes (UpdateLocation << Ok)
+    Sub.batch
+        [ Geolocation.changes (UpdateLocation << Ok)
+        , newMovement UpdateMovement
+        ]
 
 
 port whereami : List Loc -> Cmd msg
+
+
+port newMovement : (String -> msg) -> Sub msg
 
 
 
