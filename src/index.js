@@ -9,7 +9,7 @@ window.addEventListener('keydown', ({ code, preventDefault }) => {
   newMovement.send(code);
 });
 
-app.ports.whereami.subscribe(function(lox){
+app.ports.whereiam.subscribe(function(lox){
     if (lox.length > 0) {
         console.log("hi", lox[0]);
 
@@ -31,4 +31,16 @@ app.ports.whereami.subscribe(function(lox){
             polygon.setMap(map);
         }
     }
+});
+
+app.ports.plotPoints.subscribe(function(lox){
+    console.log(lox.length);
+
+    lox.forEach(function (loc) {
+        // Create new marker and add it to the map
+        new google.maps.Marker({
+            position: loc,
+            map: map
+        });
+    });
 });

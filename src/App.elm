@@ -3,6 +3,8 @@ port module App exposing (..)
 import Geolocation exposing (Location)
 import Html exposing (..)
 import Html.Events exposing (onClick)
+import Http
+import Json.Decode as Decode
 import Task
 
 
@@ -17,7 +19,12 @@ type alias Model =
     { message : String
     , displayLocation : Bool
     , locations : List Loc
+    , permits : List Loc
     }
+
+
+type alias Permit =
+    { coordinates : Loc }
 
 
 init : String -> ( Model, Cmd Msg )
@@ -25,9 +32,36 @@ init path =
     ( { message = "Elm Geolocation!"
       , displayLocation = False
       , locations = []
+      , permits = []
       }
-    , Cmd.none
+    , fetchPermits
     )
+
+
+fetchPermits : Cmd Msg
+fetchPermits =
+    let
+        url =
+            "https://data.cityoforlando.net/resource/qe2j-hi3t.json"
+
+        request =
+            Http.get url decodePermitResponse
+    in
+        Http.send HandlePermit request
+
+
+decodePermitResponse : Decode.Decoder (List Loc)
+decodePermitResponse =
+    Decode.list
+        (Decode.maybe
+            (Decode.at [ "location", "coordinates" ]
+                (Decode.map2 Loc
+                    (Decode.index 1 Decode.float)
+                    (Decode.index 0 Decode.float)
+                )
+            )
+        )
+        |> Decode.map (List.filterMap identity)
 
 
 
@@ -40,6 +74,7 @@ type Msg
     | FetchLocation
     | UpdateLocation (Result Geolocation.Error Location)
     | UpdateMovement String
+    | HandlePermit (Result Http.Error (List Loc))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -56,23 +91,23 @@ update msg model =
                 cmd =
                     Geolocation.now |> Task.attempt UpdateLocation
             in
-            ( model, cmd )
+                ( model, cmd )
 
         UpdateLocation (Ok location) ->
             let
                 newLocations =
                     Loc location.latitude location.longitude :: model.locations
             in
-            ( { model | locations = newLocations }
-            , whereami newLocations
-            )
+                ( { model | locations = newLocations }
+                , whereiam newLocations
+                )
 
         UpdateLocation (Err error) ->
             let
                 _ =
                     Debug.log "LocationUpdated" error
             in
-            ( model, Cmd.none )
+                ( model, Cmd.none )
 
         UpdateMovement keyCode ->
             case List.head model.locations of
@@ -81,12 +116,22 @@ update msg model =
                         updatedLocations =
                             applyMovement keyCode location :: model.locations
                     in
-                    ( { model | locations = updatedLocations }
-                    , whereami updatedLocations
-                    )
+                        ( { model | locations = updatedLocations }
+                        , whereiam updatedLocations
+                        )
 
                 other ->
                     ( model, Cmd.none )
+
+        HandlePermit response ->
+            case response of
+                Err _ ->
+                    ( model, Cmd.none )
+
+                Ok permits ->
+                    ( { model | permits = permits }
+                    , plotPoints permits
+                    )
 
 
 applyMovement : String -> Loc -> Loc
@@ -164,7 +209,10 @@ subscriptions model =
         ]
 
 
-port whereami : List Loc -> Cmd msg
+port whereiam : List Loc -> Cmd msg
+
+
+port plotPoints : List Loc -> Cmd msg
 
 
 port newMovement : (String -> msg) -> Sub msg
